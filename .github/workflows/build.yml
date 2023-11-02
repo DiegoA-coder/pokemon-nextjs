@@ -23,11 +23,10 @@ jobs:
     steps:
       - name: Check disallowed files .env
         run: |
-          ls
           # Searches for .env files in the root directory and its subdirectories
-          if git ls-files | grep -q '\.env$'; then
-            echo "Error: .env files are not allowed."
-            exit 1
+          if find . -type f -name '.env' | grep -q '\.env$'; then
+          echo "Error: Archivos .env no están permitidos."
+          exit 1
           fi
 
       - name: Set up NodeJS
