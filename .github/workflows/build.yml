@@ -1,0 +1,45 @@
+name: Build Project
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check disallowed files .env
+        run: |
+          # Searches for .env files in the root directory and its subdirectories
+          if git ls-files | grep -q '\.env$'; then
+            echo "Error: .env files are not allowed."
+            exit 1
+          fi
+
+      - name: Set up NodeJS
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+
+      - name: Clone the repository
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: npm install
+
+
+      - name: Build project
+        run: npm run build
